@@ -16,7 +16,7 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
         # Mirror the encoder layers to form the full autoencoder architecture
         decoder_layers = encoder_layers[-2::-1]  # Reverse encoder layers, excluding the last one (latent)
         layer_sizes = encoder_layers + decoder_layers  # Full architecture: encoder + mirrored decoder
-        super().__init__(layer_sizes, learning_rate=learning_rate, momentum=momentum, weight_updates_by_epoch=False)
+        MultilayerPerceptron.__init__(self, layer_sizes, learning_rate=learning_rate, momentum=momentum)
 
     # Override the activation function to be linear for reconstruction
     def sigmoid(self, x):
@@ -26,10 +26,14 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
         # For linear activation, the derivative is constant (1)
         return np.ones_like(x)
 
+    def compute_error(self, x, _):
+        reconstructions = self.reconstruct(x)
+        return np.sum(np.abs(np.rint(reconstructions) - x))
+
     # Train the autoencoder
     def train_autoencoder(self, x, epoch_limit, error_limit):
         y = x  # In an autoencoder, the target is the input itself
-        return super().train(x, y, epoch_limit, error_limit)
+        return MultilayerPerceptron.train(self, x, y, epoch_limit, error_limit)
 
     # Encode the input to its latent representation
     def encode(self, x):
@@ -40,7 +44,6 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
     # Decode the latent representation back to the original space
     def decode(self, latent):
         decoder_weights = self.weights[len(self.layer_sizes) // 2:]
-        print(decoder_weights)
         activations, _ = self.forward_propagation(latent, decoder_weights)  # Use only the decoder weights
         return activations[-1]
 
@@ -53,7 +56,7 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
 # Example usage
 if __name__ == '__main__':
     # Example dataset
-    X = np.array([[1.0, 0.0], [0.0, 1.0], [0.5, 0.5], [0.2, 0.8]])
+    X = np.array([[1, 0], [0, 1], [0, 0], [1, 1]])
 
     # Create a deep autoencoder with a mirrored architecture
     # Encoder layers: 2 -> 4 -> 2
@@ -61,7 +64,7 @@ if __name__ == '__main__':
     autoencoder = MLPLinearAutoencoder(encoder_layers=[2, 4, 3], learning_rate=0.01, momentum=0.9)
 
     # Train the autoencoder
-    trained_weights, min_error, epochs, _, _ = autoencoder.train_autoencoder(X, epoch_limit=np.inf, error_limit=1e-5)
+    trained_weights, min_error, epochs, _, _ = autoencoder.train_autoencoder(X, epoch_limit=np.inf, error_limit=1)
     print("Trained weights:", trained_weights)
     print("Minimum error:", min_error)
     print("Epochs used:", epochs)

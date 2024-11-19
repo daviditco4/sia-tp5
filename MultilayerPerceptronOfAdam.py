@@ -4,8 +4,9 @@ from MultilayerPerceptron import MultilayerPerceptron
 
 class MultilayerPerceptronOfAdam(MultilayerPerceptron):
     def __init__(self, layer_sizes, beta=1.0, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8,
-                 weight_updates_by_epoch=True):
-        super().__init__(layer_sizes, beta, learning_rate, None, weight_updates_by_epoch)
+                 weight_updates_by_epoch=False):
+        MultilayerPerceptron.__init__(self, layer_sizes, beta, learning_rate,
+                                      weight_updates_by_epoch=weight_updates_by_epoch)
         self.beta1 = beta1
         self.beta2 = beta2
         self.epsilon = epsilon
@@ -14,7 +15,7 @@ class MultilayerPerceptronOfAdam(MultilayerPerceptron):
         self.v_weights = None
 
     def initialize_weights(self):
-        super().initialize_weights()
+        MultilayerPerceptron.initialize_weights(self)
         # Initialize Adam parameters (time step, moving averages of gradients and squared gradients)
         self.t = 0
         self.m_weights = [np.zeros_like(w) for w in self.weights]

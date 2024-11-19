@@ -1,43 +1,60 @@
 import numpy as np
 from MLPLinearAutoencoder import MLPLinearAutoencoder
+from MultilayerPerceptronOfAdam import MultilayerPerceptronOfAdam
 
 
-class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder):
+class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAdam):
     def __init__(self, encoder_layers, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
         """
-        Initialize a deep autoencoder with Adam optimizer.
+        Initialize a linear autoencoder with Adam optimization.
         Parameters:
-        - encoder_layers: List of integers defining the encoder architecture, including input and latent sizes.
-        - learning_rate: Learning rate for weight updates.
-        - beta1: Exponential decay rate for the first moment estimates.
-        - beta2: Exponential decay rate for the second moment estimates.
-        - epsilon: Small value to prevent division by zero in Adam.
+        - encoder_layers: List of integers defining the encoder architecture, e.g., [input_size, hidden1, latent_size].
+        - learning_rate: Learning rate for Adam optimization.
+        - beta1: Exponential decay rate for the first moment estimates (Adam parameter).
+        - beta2: Exponential decay rate for the second moment estimates (Adam parameter).
+        - epsilon: Small constant to prevent division by zero (Adam parameter).
         """
-        super().__init__(encoder_layers, learning_rate)
-        self.beta1 = beta1
-        self.beta2 = beta2
-        self.epsilon = epsilon
-        self.t = None
-        self.m_weights = None
-        self.v_weights = None
-
-    def initialize_weights(self):
-        super().initialize_weights()
-        # Initialize Adam parameters (time step, moving averages of gradients and squared gradients)
-        self.t = 0
-        self.m_weights = [np.zeros_like(w) for w in self.weights]
-        self.v_weights = [np.zeros_like(w) for w in self.weights]
+        # Call the parent constructors
+        MLPLinearAutoencoder.__init__(self, encoder_layers, learning_rate=learning_rate)
+        MultilayerPerceptronOfAdam.__init__(
+            self,
+            layer_sizes=encoder_layers + encoder_layers[-2::-1],  # Full autoencoder architecture
+            learning_rate=learning_rate,
+            beta1=beta1,
+            beta2=beta2,
+            epsilon=epsilon,
+            weight_updates_by_epoch=False,  # Controlled by MLPLinearAutoencoder
+        )
 
     def calculate_weight_updates(self, weight_gradients):
-        self.t += 1
-        weight_updates = [None] * len(self.weights)
-        for i in range(len(self.weights)):
-            # Update biased first moment estimate (m) and second moment estimate (v) for weights
-            self.m_weights[i] = self.beta1 * self.m_weights[i] + (1 - self.beta1) * weight_gradients[i]
-            self.v_weights[i] = self.beta2 * self.v_weights[i] + (1 - self.beta2) * (weight_gradients[i] ** 2)
-            # Bias correction for weights
-            m_weights_corr = self.m_weights[i] / (1 - self.beta1 ** self.t)
-            v_weights_corr = self.v_weights[i] / (1 - self.beta2 ** self.t)
-            # Update weights using Adam update rule
-            weight_updates[i] = -self.learning_rate * m_weights_corr / (np.sqrt(v_weights_corr) + self.epsilon)
-        return weight_updates
+        """
+        Override the weight update calculation to use Adam optimization.
+        """
+        return MultilayerPerceptronOfAdam.calculate_weight_updates(self, weight_gradients)
+
+    def initialize_weights(self):
+        """
+        Override weight initialization to ensure compatibility with Adam parameters.
+        """
+        MLPLinearAutoencoder.initialize_weights(self)  # Initialize weights
+        MultilayerPerceptronOfAdam.initialize_weights(self)  # Initialize Adam-specific parameters
+
+    # Other methods from MLPLinearAutoencoder, such as encode, decode, reconstruct, and train_autoencoder,
+    # are inherited without changes, as they are compatible with Adam optimization.
+
+
+# Example usage
+if __name__ == "__main__":
+    encode_layers = [5, 5, 2]  # Example architecture
+    learnin_rate = 0.001
+    autoencoder = MLPLinearAutoencoderOfAdam(encode_layers, learning_rate=learnin_rate)
+
+    # Example input
+    x = np.rint(np.random.rand(5, 5))  # 5 samples with 5 features each
+
+    # Train the autoencoder
+    autoencoder.train_autoencoder(x, epoch_limit=np.inf, error_limit=1)
+
+    # Reconstruct data
+    reconstructions = autoencoder.reconstruct(x)
+    print("Reconstructed Data:", reconstructions)

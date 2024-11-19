@@ -3,7 +3,7 @@ import numpy as np
 
 
 class MultilayerPerceptron:
-    def __init__(self, layer_sizes, beta=1.0, learning_rate=0.001, momentum=0.0, weight_updates_by_epoch=True):
+    def __init__(self, layer_sizes, beta=1.0, learning_rate=0.001, momentum=0.0, weight_updates_by_epoch=False):
         self.layer_sizes = layer_sizes  # List defining the number of neurons per layer
         self.beta = beta
         self.learning_rate = learning_rate

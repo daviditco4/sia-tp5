@@ -20,7 +20,7 @@ if __name__ == '__main__':
 
     # Train the autoencoder
     trained_weights, min_error, epochs, _, _ = autoencoder.train_autoencoder(characters, epoch_limit=np.inf,
-                                                                             error_limit=0.0188)
+                                                                             error_limit=2)
     print("Trained weights:", trained_weights)
     print("Minimum error:", min_error)
     print("Epochs used:", epochs)
@@ -29,4 +29,4 @@ if __name__ == '__main__':
     latent_representation = autoencoder.encode(characters)
     reconstruction = autoencoder.reconstruct(characters)
     print("Latent representation:", latent_representation)
-    print("Reconstruction:", np.resize(np.round(reconstruction[1]), new_shape=(7, 5)))
+    print("Reconstruction:", np.resize(np.rint(reconstruction[1]), new_shape=(7, 5)))
