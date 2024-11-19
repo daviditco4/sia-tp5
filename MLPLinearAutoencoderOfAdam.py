@@ -38,9 +38,10 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
         """
         MLPLinearAutoencoder.initialize_weights(self)  # Initialize weights
         MultilayerPerceptronOfAdam.initialize_weights(self)  # Initialize Adam-specific parameters
-        # for i in range(len(self.layer_sizes) - 1):
-        #     # Initialize weights randomly from a uniform distribution
-        #     self.weights[i] = np.random.rand(self.layer_sizes[i], self.layer_sizes[i + 1])
+        for i in range(len(self.layer_sizes) - 1):
+            # Xavier initialization for weights
+            self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
+                2 / (self.layer_sizes[i] + self.layer_sizes[i + 1]))
 
     # Other methods from MLPLinearAutoencoder, such as encode, decode, reconstruct, and train_autoencoder,
     # are inherited without changes, as they are compatible with Adam optimization.
