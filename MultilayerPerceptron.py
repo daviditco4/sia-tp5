@@ -120,6 +120,7 @@ class MultilayerPerceptron:
             if self.weight_updates_by_epoch:
                 # Update the minimum error and best weights if the current error is lower or equal
                 if error <= min_error:
+                    print(error)
                     min_error = error
                     best_weights = [w.copy() for w in self.weights]  # Store the best weights
                     if min_error < error_limit:

@@ -1,4 +1,5 @@
 import numpy as np
+
 from MLPLinearAutoencoder import MLPLinearAutoencoder
 from MultilayerPerceptronOfAdam import MultilayerPerceptronOfAdam
 
@@ -23,7 +24,6 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
             beta1=beta1,
             beta2=beta2,
             epsilon=epsilon,
-            weight_updates_by_epoch=False,  # Controlled by MLPLinearAutoencoder
         )
 
     def calculate_weight_updates(self, weight_gradients):
@@ -34,10 +34,13 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
 
     def initialize_weights(self):
         """
-        Override weight initialization to ensure compatibility with Adam parameters.
+        Override weight initialization to ensure compatibility with Adam parameters and autoencoder structure.
         """
         MLPLinearAutoencoder.initialize_weights(self)  # Initialize weights
         MultilayerPerceptronOfAdam.initialize_weights(self)  # Initialize Adam-specific parameters
+        # for i in range(len(self.layer_sizes) - 1):
+        #     # Initialize weights randomly from a uniform distribution
+        #     self.weights[i] = np.random.rand(self.layer_sizes[i], self.layer_sizes[i + 1])
 
     # Other methods from MLPLinearAutoencoder, such as encode, decode, reconstruct, and train_autoencoder,
     # are inherited without changes, as they are compatible with Adam optimization.
