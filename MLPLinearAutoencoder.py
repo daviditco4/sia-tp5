@@ -62,15 +62,26 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
     def plot_latent_space(self, x, labels=None):
         if self.encoder_layers[-1] != 2:
             raise ValueError("The latent space must be 2D to visualize. Adjust the architecture.")
+        # Encode input data into latent representations
         latent_representations = self.encode(x)
-        unique_labels = [label for _, label in
-                         sorted(zip(latent_representations, list(set(labels))), key=lambda pair: euclidean(*pair[0]))]
-        colors = plt.cm.tab10(np.linspace(0, 1, len(unique_labels)))
-        color_map = {label: colors[i] for i, label in enumerate(unique_labels)}
+        # Compute distances from each point to the origin (0, 0)
+        distances = [euclidean(point, [0, 0]) for point in latent_representations]
+        # Normalize distances to [0, 1] for colormap scaling
+        max_distance = max(distances)
+        normalized_distances = [d / max_distance for d in distances]
+        # Use a colormap (e.g., viridis) to assign colors based on distances
+        colormap = plt.cm.viridis
+        colors = [colormap(norm_dist) for norm_dist in normalized_distances]
         plt.figure(figsize=(8, 6))
         for i, point in enumerate(latent_representations):
-            plt.scatter(point[0], point[1], color=color_map[labels[i]], s=50, alpha=0.7)
-            plt.text(point[0], point[1], labels[i], fontsize=9, ha='right', va='bottom')
+            plt.scatter(point[0], point[1], color=colors[i], s=50, alpha=0.7)
+            if labels is not None:
+                plt.text(point[0], point[1], str(labels[i]), fontsize=9, ha='right', va='bottom')
+        # Add a colorbar to represent the distances
+        sm = plt.cm.ScalarMappable(cmap=colormap, norm=plt.Normalize(vmin=0, vmax=max_distance))
+        sm.set_array([])
+        cbar = plt.colorbar(sm)
+        cbar.set_label('Distance from Center')
         plt.title("2D Latent Space Representation")
         plt.xlabel("Latent Dimension 1")
         plt.ylabel("Latent Dimension 2")
