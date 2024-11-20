@@ -22,20 +22,20 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
         MultilayerPerceptron.__init__(self, layer_sizes, learning_rate=learning_rate, momentum=momentum)
         self.encoder_layers = encoder_layers
 
-    # Override the activation function to be linear for reconstruction
-    def sigmoid(self, x):
-        return x  # Linear activation for the autoencoder
+    # # Override the activation function to be linear for reconstruction
+    # def sigmoid(self, x):
+    #     return x  # Linear activation for the autoencoder
+    #
+    # def sigmoid_derivative(self, x):
+    #     # For linear activation, the derivative is constant (1)
+    #     return np.ones_like(x)
 
-    def sigmoid_derivative(self, x):
-        # For linear activation, the derivative is constant (1)
-        return np.ones_like(x)
-
-    def compute_error(self, x, _=None):
-        reconstructions = self.reconstruct(x)
-        # print(reconstructions)
-        # print(np.abs(np.rint(reconstructions) - x))
-        # exit()
-        return np.sum(np.abs(np.rint(reconstructions) - x))
+    # def compute_error(self, x, _=None):
+    #     reconstructions = self.reconstruct(x)
+    #     # print(reconstructions)
+    #     # print(np.abs(np.rint(reconstructions) - x))
+    #     # exit()
+    #     return np.sum(np.abs(np.rint(reconstructions) - x))
 
     # Train the autoencoder
     def train_autoencoder(self, x, epoch_limit, error_limit):

@@ -49,27 +49,24 @@ class MultilayerPerceptron:
             self.prev_weight_updates[i] = weight_updates[i]
         return weight_updates
 
-    def calculate_weight_gradients(self, activations, errors, _):
-        weight_gradients = [None] * len(self.weights)
-        for i in range(len(self.weights)):
-            weight_gradients[i] = -np.dot(activations[i].T, errors[i])
-        return weight_gradients
-
     # Backpropagation for multiple layers
     def back_propagation(self, x_sample, y_true, activations, excitations):
         errors = [None] * len(self.weights)  # Initialize error list
+        weight_gradients = [None] * len(self.weights)
         # Error at the output layer (last layer)
         output_error = (y_true - activations[-1]) * self.sigmoid_derivative(excitations[-1])
         errors[-1] = output_error
         # Back-propagate error through hidden layers
         for i in reversed(range(len(self.weights) - 1)):
             errors[i] = np.dot(errors[i + 1], self.weights[i + 1].T) * self.sigmoid_derivative(excitations[i])
-        return self.calculate_weight_gradients(activations, errors, x_sample)
+        for i in range(len(self.weights)):
+            weight_gradients[i] = -np.dot(activations[i].T, errors[i])
+        return weight_gradients
 
     # Compute mean squared error
     def compute_error(self, x, y):
         predictions, _ = self.forward_propagation(x)
-        return np.mean((y - predictions[-1]) ** 2)
+        return np.mean((predictions[-1] - y) ** 2)
 
     # Train the perceptron using gradient descent
     def train(self, x, y, epoch_limit, error_limit):
