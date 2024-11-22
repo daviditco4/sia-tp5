@@ -6,7 +6,7 @@ from MultilayerPerceptron import MultilayerPerceptron
 
 
 class MLPLinearAutoencoder(MultilayerPerceptron):
-    def __init__(self, encoder_layers, learning_rate=0.001, momentum=0.0):
+    def __init__(self, encoder_layers, beta=1.0, learning_rate=0.001, momentum=0.0):
         """
         Initialize a deep autoencoder with a mirrored decoder architecture.
         Parameters:
@@ -19,23 +19,37 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
         # Mirror the encoder layers to form the full autoencoder architecture
         decoder_layers = encoder_layers[-2::-1]  # Reverse encoder layers, excluding the last one (latent)
         layer_sizes = encoder_layers + decoder_layers  # Full architecture: encoder + mirrored decoder
-        MultilayerPerceptron.__init__(self, layer_sizes, learning_rate=learning_rate, momentum=momentum)
+        MultilayerPerceptron.__init__(self, layer_sizes, beta, learning_rate, momentum)
         self.encoder_layers = encoder_layers
 
     # # Override the activation function to be linear for reconstruction
-    # def sigmoid(self, x):
-    #     return x  # Linear activation for the autoencoder
+    # def sigmoid(self, x, layer):
+    #     if layer == len(self.encoder_layers) - 1:
+    #         return x  # Linear activation for the latent layer
+    #     elif layer == len(self.layer_sizes) - 1:
+    #         return MultilayerPerceptron.sigmoid(self, x, layer)  # Sigmoid activation for the output layer
+    #     else:
+    #         return np.maximum(0, x)  # ReLU activation for the remaining layers
     #
-    # def sigmoid_derivative(self, x):
-    #     # For linear activation, the derivative is constant (1)
-    #     return np.ones_like(x)
+    # def sigmoid_derivative(self, x, layer):
+    #     if layer == len(self.encoder_layers) - 1:
+    #         return np.ones_like(x)  # For linear activation, the derivative is constant (1)
+    #     elif layer == len(self.layer_sizes) - 1:
+    #         return MultilayerPerceptron.sigmoid_derivative(self, x, layer)
+    #     else:
+    #         return (x > 0).astype(float)  # Derivative for ReLU activation
 
     # def compute_error(self, x, _=None):
     #     reconstructions = self.reconstruct(x)
     #     # print(reconstructions)
     #     # print(np.abs(np.rint(reconstructions) - x))
     #     # exit()
-    #     return np.sum(np.abs(np.rint(reconstructions) - x))
+    #     # Ensure numerical stability by clipping predictions to avoid log(0)
+    #     y_pred = np.clip(reconstructions, a_min=1e-15, a_max=1 - 1e-15)
+    #     # Compute BCE loss for each data point
+    #     bce_loss = - (x * np.log(y_pred) + (1 - x) * np.log(1 - y_pred))
+    #     return np.mean(bce_loss)  # Return the average loss
+    #     # return np.sum(np.abs(np.rint(reconstructions) - x))
 
     # Train the autoencoder
     def train_autoencoder(self, x, epoch_limit, error_limit):
@@ -45,19 +59,24 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
     # Encode the input to its latent representation
     def encode(self, x):
         encoder_weights = self.weights[: len(self.layer_sizes) // 2]
-        activations, _ = self.forward_propagation(x, encoder_weights)  # Use only the encoder weights
+        encoder_biases = self.biases[: len(self.layer_sizes) // 2]
+        activations, _ = self.forward_propagation(x, encoder_weights,
+                                                  encoder_biases)  # Use only the encoder weights and biases
         return activations[-1]  # Latent representation
 
-    # Decode the latent representation back to the original space
-    def decode(self, latent):
-        decoder_weights = self.weights[len(self.layer_sizes) // 2:]
-        activations, _ = self.forward_propagation(latent, decoder_weights)  # Use only the decoder weights
-        return activations[-1]
+    # # Decode the latent representation back to the original space
+    # def decode(self, latent):
+    #     decoder_weights = self.weights[len(self.layer_sizes) // 2:]
+    #     decoder_biases = self.biases[len(self.layer_sizes) // 2:]
+    #     activations, _ = self.forward_propagation(latent, decoder_weights,
+    #                                               decoder_biases)  # Use only the decoder weights and biases
+    #     return activations[-1]
 
     # Reconstruct the input by encoding and decoding
     def reconstruct(self, x):
-        latent = self.encode(x)
-        return self.decode(latent)
+        return self.forward_propagation(x)[0][-1]
+        # latent = self.encode(x)
+        # return self.decode(latent)
 
     def plot_latent_space(self, x, labels=None):
         if self.encoder_layers[-1] != 2:
@@ -100,8 +119,10 @@ if __name__ == '__main__':
     autoencoder = MLPLinearAutoencoder(encoder_layers=[2, 4, 3], learning_rate=0.01, momentum=0.9)
 
     # Train the autoencoder
-    trained_weights, min_error, epochs, _, _ = autoencoder.train_autoencoder(X, epoch_limit=np.inf, error_limit=1)
+    trained_weights, trained_biases, min_error, epochs, _, _, _ = autoencoder.train_autoencoder(X, epoch_limit=np.inf,
+                                                                                                error_limit=1)
     print("Trained weights:", trained_weights)
+    print("Trained biases:", trained_biases)
     print("Minimum error:", min_error)
     print("Epochs used:", epochs)
 

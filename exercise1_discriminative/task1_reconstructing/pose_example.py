@@ -18,12 +18,13 @@ if __name__ == '__main__':
     # characters[characters == 0] = -1
 
     # Create a deep autoencoder with a mirrored architecture
-    autoencoder = MLPLinearAutoencoderOfAdam(encoder_layers=[35, 25, 15, 5, 2, 2], learning_rate=0.0001)
+    autoencoder = MLPLinearAutoencoderOfAdam(encoder_layers=[35, 40, 25, 10, 2], learning_rate=0.001)
 
     # Train the autoencoder
-    trained_weights, min_error, epochs, _, _ = autoencoder.train_autoencoder(characters, epoch_limit=np.inf,
-                                                                             error_limit=0.01)
+    trained_weights, trained_biases, min_error, epochs, _, _, _ = autoencoder.train_autoencoder(characters, epoch_limit=np.inf,
+                                                                             error_limit=0.002)
     print("Trained weights:", trained_weights)
+    print("Trained biases:", trained_biases)
     print("Minimum error:", np.sum(np.abs(np.rint(autoencoder.reconstruct(characters)) - characters)))
     print("Epochs used:", epochs)
 
@@ -31,7 +32,7 @@ if __name__ == '__main__':
     latent_representation = autoencoder.encode(characters)
     reconstruction = autoencoder.reconstruct(characters)
     print("Latent representation:", latent_representation)
-    print("Reconstruction:", np.resize(np.rint(reconstruction[1]), new_shape=(7, 5)))
+    print("Reconstruction:", np.resize(np.rint(reconstruction[31]), new_shape=(7, 5)))
 
     # Plot the latent space
     autoencoder.plot_latent_space(characters, font3_labels)
