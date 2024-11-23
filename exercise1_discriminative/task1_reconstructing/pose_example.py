@@ -1,6 +1,6 @@
 import os
 import sys
-
+import matplotlib.pyplot as plt
 import numpy as np
 
 # Add the path to the folder containing MLPLinearAutoencoderOfAdam.py
@@ -18,14 +18,22 @@ if __name__ == '__main__':
     # characters[characters == 0] = -1
 
     # Create a deep autoencoder with a mirrored architecture
-    autoencoder = MLPLinearAutoencoderOfAdam(encoder_layers=[35, 25, 15, 5, 2, 2], learning_rate=0.0001)
+    autoencoder = MLPLinearAutoencoderOfAdam(encoder_layers=[35, 25, 15, 5, 2, 2], learning_rate=0.001)
 
     # Train the autoencoder
-    trained_weights, min_error, epochs, _, _ = autoencoder.train_autoencoder(characters, epoch_limit=np.inf,
-                                                                             error_limit=0.01)
+    trained_weights, min_error, epochs, _, error_history = autoencoder.train_autoencoder(characters, epoch_limit=np.inf,
+                                                                                         error_limit=0.03)
     print("Trained weights:", trained_weights)
     print("Minimum error:", np.sum(np.abs(np.rint(autoencoder.reconstruct(characters)) - characters)))
     print("Epochs used:", epochs)
+
+    # Plot error history
+    plt.plot(error_history)
+    plt.xlabel('Epochs')
+    plt.ylabel('Error')
+    plt.title('Error History')
+    plt.grid(True)
+    plt.show()
 
     # Test encoding and reconstruction
     latent_representation = autoencoder.encode(characters)

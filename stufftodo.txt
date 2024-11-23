@@ -1,0 +1,8 @@
+-Make graphs
+-Use TP3 code for graphs (same graphs)
+-Instead of accuracy graphs, use error graphs (RMS error)
+-Change the parameters in MLPLinearAutoencoderOfAdam.py
+-error vs. epoch
+-Find the most optimal parameters
+-Task 4) Make a 2D graph with the two latent space dimensions as axes (outputs of the encoder)
+
