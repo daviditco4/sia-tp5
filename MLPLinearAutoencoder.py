@@ -64,13 +64,13 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
                                                   encoder_biases)  # Use only the encoder weights and biases
         return activations[-1]  # Latent representation
 
-    # # Decode the latent representation back to the original space
-    # def decode(self, latent):
-    #     decoder_weights = self.weights[len(self.layer_sizes) // 2:]
-    #     decoder_biases = self.biases[len(self.layer_sizes) // 2:]
-    #     activations, _ = self.forward_propagation(latent, decoder_weights,
-    #                                               decoder_biases)  # Use only the decoder weights and biases
-    #     return activations[-1]
+    # Decode the latent representation back to the original space
+    def decode(self, latent):
+        decoder_weights = self.weights[len(self.layer_sizes) // 2:]
+        decoder_biases = self.biases[len(self.layer_sizes) // 2:]
+        activations, _ = self.forward_propagation(latent, decoder_weights,
+                                                  decoder_biases)  # Use only the decoder weights and biases
+        return activations[-1]
 
     # Reconstruct the input by encoding and decoding
     def reconstruct(self, x):
