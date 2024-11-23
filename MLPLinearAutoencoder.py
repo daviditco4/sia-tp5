@@ -22,22 +22,22 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
         MultilayerPerceptron.__init__(self, layer_sizes, beta, learning_rate, momentum)
         self.encoder_layers = encoder_layers
 
-    # # Override the activation function to be linear for reconstruction
-    # def sigmoid(self, x, layer):
-    #     if layer == len(self.encoder_layers) - 1:
-    #         return x  # Linear activation for the latent layer
-    #     elif layer == len(self.layer_sizes) - 1:
-    #         return MultilayerPerceptron.sigmoid(self, x, layer)  # Sigmoid activation for the output layer
-    #     else:
-    #         return np.maximum(0, x)  # ReLU activation for the remaining layers
-    #
-    # def sigmoid_derivative(self, x, layer):
-    #     if layer == len(self.encoder_layers) - 1:
-    #         return np.ones_like(x)  # For linear activation, the derivative is constant (1)
-    #     elif layer == len(self.layer_sizes) - 1:
-    #         return MultilayerPerceptron.sigmoid_derivative(self, x, layer)
-    #     else:
-    #         return (x > 0).astype(float)  # Derivative for ReLU activation
+    # Override the activation function to be linear for reconstruction
+    def sigmoid(self, x, layer):
+        if layer == len(self.encoder_layers) - 1:
+            return x  # Tanh activation for the latent layer
+        elif layer == len(self.layer_sizes) - 1:
+            return MultilayerPerceptron.sigmoid(self, x, layer)  # Sigmoid activation for the output layer
+        else:
+            return np.tanh(self.beta * x)  # ReLU activation for the remaining layers
+
+    def sigmoid_derivative(self, x, layer):
+        if layer == len(self.encoder_layers) - 1:
+            return np.ones_like(x)  # For linear activation, the derivative is constant (1)
+        elif layer == len(self.layer_sizes) - 1:
+            return MultilayerPerceptron.sigmoid_derivative(self, x, layer)
+        else:
+            return self.beta * (1 - np.tanh(self.beta * x) ** 2)  # Derivative for ReLU activation
 
     # def compute_error(self, x, _=None):
     #     reconstructions = self.reconstruct(x)
@@ -47,7 +47,7 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
     #     # Ensure numerical stability by clipping predictions to avoid log(0)
     #     y_pred = np.clip(reconstructions, a_min=1e-15, a_max=1 - 1e-15)
     #     # Compute BCE loss for each data point
-    #     bce_loss = - (x * np.log(y_pred) + (1 - x) * np.log(1 - y_pred))
+    #     bce_loss = -(x * np.log(y_pred) + (1 - x) * np.log(1 - y_pred))
     #     return np.mean(bce_loss)  # Return the average loss
     #     # return np.sum(np.abs(np.rint(reconstructions) - x))
 

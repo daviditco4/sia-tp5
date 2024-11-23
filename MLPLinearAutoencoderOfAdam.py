@@ -31,7 +31,8 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
         """
         Override the weight and bias update calculation to use Adam optimization.
         """
-        return MultilayerPerceptronOfAdam.calculate_weight_updates(self, weight_gradients, bias_gradients, learning_rate)
+        return MultilayerPerceptronOfAdam.calculate_weight_updates(self, weight_gradients, bias_gradients,
+                                                                   learning_rate)
 
     def initialize_weights(self):
         """
@@ -40,9 +41,18 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
         MLPLinearAutoencoder.initialize_weights(self)  # Initialize weights
         MultilayerPerceptronOfAdam.initialize_weights(self)  # Initialize Adam-specific parameters
         for i in range(len(self.layer_sizes) - 1):
-            # Xavier initialization for weights and biases
-            self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
-                2 / (self.layer_sizes[i] + self.layer_sizes[i + 1]))
+            if i == len(self.encoder_layers) - 2:
+                # He initialization for the latent layer
+                self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
+                    2 / (self.layer_sizes[i]))
+            elif i == len(self.layer_sizes) - 2:
+                # Xavier initialization for the output layer
+                self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
+                    2 / (self.layer_sizes[i] + self.layer_sizes[i + 1]))
+            else:
+                # He initialization for the remaining layers
+                self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
+                    2 / self.layer_sizes[i])
             self.biases[i] = np.zeros((1, self.layer_sizes[i + 1]))
 
     # Other methods from MLPLinearAutoencoder, such as encode, decode, reconstruct, and train_autoencoder,

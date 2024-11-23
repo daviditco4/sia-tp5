@@ -55,7 +55,8 @@ class MultilayerPerceptron:
         weight_updates = [None] * len(self.weights)
         bias_updates = [None] * len(self.biases)
         for i in range(len(self.weights)):
-            weight_updates[i] = -learning_rate * weight_gradients[i] + self.momentum * self.prev_weight_updates[i]
+            weight_updates[i] = -learning_rate * (weight_gradients[i] + 0.001 * self.weights[i]) + self.momentum * \
+                                self.prev_weight_updates[i]
             bias_updates[i] = -learning_rate * bias_gradients[i] + self.momentum * self.prev_bias_updates[i]
             self.prev_weight_updates[i] = weight_updates[i]
             self.prev_bias_updates[i] = bias_updates[i]
@@ -73,8 +74,8 @@ class MultilayerPerceptron:
         for i in reversed(range(len(self.weights) - 1)):
             errors[i] = np.dot(errors[i + 1], self.weights[i + 1].T) * self.sigmoid_derivative(excitations[i], i + 1)
         for i in range(len(self.weights)):
-            weight_gradients[i] = -np.dot(activations[i].T, errors[i])
-            bias_gradients[i] = -np.sum(errors[i], axis=0, keepdims=True)
+            weight_gradients[i] = np.clip(-np.dot(activations[i].T, errors[i]), a_min=-5, a_max=5)
+            bias_gradients[i] = np.clip(-np.sum(errors[i], axis=0, keepdims=True), a_min=-5, a_max=5)
         return weight_gradients, bias_gradients
 
     # Compute mean squared error

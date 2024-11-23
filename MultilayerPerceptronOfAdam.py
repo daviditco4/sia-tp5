@@ -46,6 +46,7 @@ class MultilayerPerceptronOfAdam(MultilayerPerceptron):
             m_biases_corr = self.m_biases[i] / (1 - self.beta1 ** self.t)
             v_biases_corr = self.v_biases[i] / (1 - self.beta2 ** self.t)
             # Update weights using Adam update rule
-            weight_updates[i] = -learning_rate * m_weights_corr / (np.sqrt(v_weights_corr) + self.epsilon)
+            weight_updates[i] = -learning_rate * (
+                        m_weights_corr / (np.sqrt(v_weights_corr) + self.epsilon) + 0.001 * self.weights[i])
             bias_updates[i] = -learning_rate * m_biases_corr / (np.sqrt(v_biases_corr) + self.epsilon)
         return weight_updates, bias_updates

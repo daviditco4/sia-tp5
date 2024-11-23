@@ -18,11 +18,12 @@ if __name__ == '__main__':
     # characters[characters == 0] = -1
 
     # Create a deep autoencoder with a mirrored architecture
-    autoencoder = MLPLinearAutoencoderOfAdam(encoder_layers=[35, 40, 25, 10, 2], learning_rate=0.001)
+    autoencoder = MLPLinearAutoencoderOfAdam(encoder_layers=[35, 50, 70, 30, 12, 5, 2], learning_rate=0.0001)
 
     # Train the autoencoder
-    trained_weights, trained_biases, min_error, epochs, _, _, _ = autoencoder.train_autoencoder(characters, epoch_limit=np.inf,
-                                                                             error_limit=0.002)
+    trained_weights, trained_biases, min_error, epochs, _, _, _ = autoencoder.train_autoencoder(characters,
+                                                                                                epoch_limit=np.inf,
+                                                                                                error_limit=0.002)
     print("Trained weights:", trained_weights)
     print("Trained biases:", trained_biases)
     print("Minimum error:", np.sum(np.abs(np.rint(autoencoder.reconstruct(characters)) - characters)))
