@@ -21,23 +21,28 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
         layer_sizes = encoder_layers + decoder_layers  # Full architecture: encoder + mirrored decoder
         MultilayerPerceptron.__init__(self, layer_sizes, beta, learning_rate, momentum)
         self.encoder_layers = encoder_layers
+        self.is_just_decoding = False
 
     # Override the activation function to be linear for reconstruction
-    def sigmoid(self, x, layer):
-        if layer == len(self.encoder_layers) - 1:
-            return x  # Tanh activation for the latent layer
-        elif layer == len(self.layer_sizes) - 1:
-            return MultilayerPerceptron.sigmoid(self, x, layer)  # Sigmoid activation for the output layer
+    def sigmoid(self, x, layer_index=None):
+        if self.is_just_decoding:
+            layer_index += len(self.encoder_layers) - 1
+        if layer_index == len(self.encoder_layers) - 1:
+            return x  # Linear activation for the latent layer
+        elif layer_index == len(self.layer_sizes) - 1:
+            return MultilayerPerceptron.sigmoid(self, x)  # Sigmoid activation for the output layer
         else:
-            return np.tanh(self.beta * x)  # ReLU activation for the remaining layers
+            return np.tanh(self.beta * x)  # Tanh activation for the remaining layers
 
-    def sigmoid_derivative(self, x, layer):
-        if layer == len(self.encoder_layers) - 1:
+    def sigmoid_derivative(self, x, layer_index=None):
+        if self.is_just_decoding:
+            layer_index += len(self.encoder_layers) - 1
+        if layer_index == len(self.encoder_layers) - 1:
             return np.ones_like(x)  # For linear activation, the derivative is constant (1)
-        elif layer == len(self.layer_sizes) - 1:
-            return MultilayerPerceptron.sigmoid_derivative(self, x, layer)
+        elif layer_index == len(self.layer_sizes) - 1:
+            return MultilayerPerceptron.sigmoid_derivative(self, x)
         else:
-            return self.beta * (1 - np.tanh(self.beta * x) ** 2)  # Derivative for ReLU activation
+            return self.beta * (1 - np.tanh(self.beta * x) ** 2)  # Derivative for tanh activation
 
     # def compute_error(self, x, _=None):
     #     reconstructions = self.reconstruct(x)
@@ -64,19 +69,21 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
                                                   encoder_biases)  # Use only the encoder weights and biases
         return activations[-1]  # Latent representation
 
-    # # Decode the latent representation back to the original space
-    # def decode(self, latent):
-    #     decoder_weights = self.weights[len(self.layer_sizes) // 2:]
-    #     decoder_biases = self.biases[len(self.layer_sizes) // 2:]
-    #     activations, _ = self.forward_propagation(latent, decoder_weights,
-    #                                               decoder_biases)  # Use only the decoder weights and biases
-    #     return activations[-1]
+    # Decode the latent representation back to the original space
+    def decode(self, latent):
+        decoder_weights = self.weights[len(self.layer_sizes) // 2:]
+        decoder_biases = self.biases[len(self.layer_sizes) // 2:]
+        self.is_just_decoding = True
+        activations, _ = self.forward_propagation(latent, decoder_weights,
+                                                  decoder_biases)  # Use only the decoder weights and biases
+        self.is_just_decoding = False
+        return activations[-1]
 
     # Reconstruct the input by encoding and decoding
     def reconstruct(self, x):
-        return self.forward_propagation(x)[0][-1]
-        # latent = self.encode(x)
-        # return self.decode(latent)
+        # return self.forward_propagation(x)[0][-1]
+        latent = self.encode(x)
+        return self.decode(latent)
 
     def plot_latent_space(self, x, labels=None):
         if self.encoder_layers[-1] != 2:

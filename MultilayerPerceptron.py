@@ -15,12 +15,12 @@ class MultilayerPerceptron:
         self.prev_bias_updates = None
 
     # Sigmoid activation function
-    def sigmoid(self, x, _):
+    def sigmoid(self, x, _=None):
         return 1 / (1 + np.exp(-self.beta * x))
 
     # Derivative of the sigmoid (calculated on weighted sums, not activations)
-    def sigmoid_derivative(self, x, layer):
-        sigmoid_val = self.sigmoid(x, layer)
+    def sigmoid_derivative(self, x, _=None):
+        sigmoid_val = MultilayerPerceptron.sigmoid(self, x)
         return self.beta * sigmoid_val * (1 - sigmoid_val)
 
     # Initialize the weights for all layers
