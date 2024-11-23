@@ -1,76 +1,96 @@
+import os
+import sys
 import numpy as np
 import matplotlib.pyplot as plt
-from adjustText import adjust_text
+
+# Add the path to the folder containing MLPLinearAutoencoderOfAdam.py
+sys.path.append(os.path.abspath('.'))
+
+# Import necessary modules
 from MLPLinearAutoencoderOfAdam import MLPLinearAutoencoderOfAdam
-from assets.fonts import font3, font3_labels
+from utils.character_font import binary_arrays_from_font3
+from assets.fonts import font3_labels
 
-# Step 1: Convert font3 binary data into usable format
-def binary_arrays_from_font3():
+
+def plot_latent_space(autoencoder, data, labels=None):
     """
-    Converts hexadecimal character data into binary arrays.
-    """
-    binary_data = []
-    for character in font3:
-        # Convert each hexadecimal row into a binary array of size 5
-        binary_char = [list(format(row, '05b')) for row in character]
-        # Convert binary strings ('0'/'1') to integers
-        binary_char = np.array(binary_char, dtype=int)
-        binary_data.append(binary_char)
-    return np.array(binary_data)
-
-# Step 2: Prepare the dataset
-characters = binary_arrays_from_font3()
-characters = characters.reshape(len(font3), -1)  # Flatten each 7x5 matrix into a 35-element vector
-
-# Step 3: Define and train the autoencoder
-autoencoder = MLPLinearAutoencoderOfAdam(encoder_layers=[35, 25, 15, 5, 2], learning_rate=0.0001)
-
-# Train the autoencoder (reduce error below 0.01 or for a set number of epochs)
-trained_weights, min_error, epochs, _, _ = autoencoder.train_autoencoder(
-    characters, epoch_limit=10000, error_limit=0.01
-)
-print(f"Training completed in {epochs} epochs with minimum error: {min_error}")
-
-# Step 4: Encode the characters into latent space
-latent_space = autoencoder.encode(characters)
-
-# Ensure latent space is 2D (as defined in the autoencoder architecture)
-assert latent_space.shape[1] == 2, "Latent space must have exactly 2 dimensions for plotting."
-
-# Step 5: Plot the latent space
-plt.figure(figsize=(10, 8))
-texts = []
-for i, (x, y) in enumerate(latent_space):
-    plt.scatter(x, y, label=font3_labels[i])  # Scatter plot for each character
-    texts.append(plt.text(x, y, font3_labels[i], fontsize=9))
-
-# Automatically adjust labels to avoid overlaps
-adjust_text(texts, arrowprops=dict(arrowstyle="->", color='gray'))
-
-plt.title("Latent Space Representation of Binary Characters")
-plt.xlabel("Latent Dimension 1")
-plt.ylabel("Latent Dimension 2")
-plt.grid(True)
-plt.show()
-
-# Step 6: Evaluate Reconstruction Error
-reconstruction = autoencoder.reconstruct(characters)
-total_error = np.sum(np.abs(reconstruction - characters))
-print(f"Total reconstruction error: {total_error}")
-
-# Step 7: Visualize Original vs Reconstructed Characters
-for i, char in enumerate(characters[:5]):  # Visualize first 5 characters
-    original = char.reshape(7, 5)
-    reconstructed = reconstruction[i].reshape(7, 5)
+    Plots the 2D latent space of the input data.
     
-    plt.figure(figsize=(6, 3))
-    plt.subplot(1, 2, 1)
-    plt.imshow(original, cmap='binary')
-    plt.title(f"Original: {font3_labels[i]}")
-    plt.axis('off')
+    Parameters:
+    - autoencoder: The trained autoencoder object.
+    - data: Input data to encode.
+    - labels: Optional labels for the data points.
+    """
+    # Ensure the latent space is 2D
+    if autoencoder.encoder_layers[-1] != 2:
+        raise ValueError("The latent space must be 2D for visualization.")
+    
+    # Encode input data into latent space
+    latent_representations = autoencoder.encode(data)
 
-    plt.subplot(1, 2, 2)
-    plt.imshow(reconstructed, cmap='binary')
-    plt.title(f"Reconstructed")
-    plt.axis('off')
+    # Plot latent space
+    plt.figure(figsize=(8, 6))
+    for i, point in enumerate(latent_representations):
+        plt.scatter(point[0], point[1], color='blue', s=50, alpha=0.7)
+        if labels:
+            plt.text(point[0], point[1], str(labels[i]), fontsize=9, ha='right', va='bottom')
+    plt.title("2D Latent Space Representation")
+    plt.xlabel("Latent Dimension 1")
+    plt.ylabel("Latent Dimension 2")
+    plt.grid(True)
     plt.show()
+
+
+def plot_reconstructed_latent_space(autoencoder, grid_size=10, latent_range=(-2, 2)):
+    """
+    Plots a grid of reconstructed characters from the latent space.
+
+    Parameters:
+    - autoencoder: Trained autoencoder instance.
+    - grid_size: Number of points along each latent dimension.
+    - latent_range: Range of the latent space (-2 to 2 by default).
+    """
+    latent_points = np.linspace(latent_range[0], latent_range[1], grid_size)
+    grid = np.array([[np.array([x, y]) for x in latent_points] for y in latent_points])
+
+    # Prepare a grid for plotting
+    fig, axes = plt.subplots(grid_size, grid_size, figsize=(10, 10))
+    for i in range(grid_size):
+        for j in range(grid_size):
+            latent_vector = grid[i, j]
+            reconstruction = autoencoder.decode(latent_vector.reshape(1, -1))
+            reconstruction_image = reconstruction.reshape((7, 5))  # Adjust shape for characters
+
+            # Plot the reconstructed character
+            axes[i, j].imshow(reconstruction_image, cmap="gray", interpolation="nearest")
+            axes[i, j].axis('off')
+    plt.tight_layout()
+    plt.show()
+
+
+if __name__ == '__main__':
+    # Load the dataset of characters
+    characters = binary_arrays_from_font3()
+
+    # Create and train the autoencoder
+    autoencoder = MLPLinearAutoencoderOfAdam(
+        encoder_layers=[35, 30, 20, 10, 4, 2], 
+        learning_rate=0.001
+    )
+    trained_weights, min_error, epochs, _, error_history = autoencoder.train_autoencoder(
+        characters, epoch_limit=10000, error_limit=0.01
+    )
+    print("Training complete!")
+    print(f"Minimum error: {min_error}")
+    print(f"Epochs used: {epochs}")
+
+    # Test reconstruction
+    reconstruction = autoencoder.reconstruct(characters)
+    print("Example reconstruction (reshaped):")
+    print(reconstruction[0].reshape((7, 5)))
+
+    # Plot the latent space of the input data
+    plot_latent_space(autoencoder, characters, labels=font3_labels)
+
+    # Plot reconstructed grid of the latent space
+    plot_reconstructed_latent_space(autoencoder, grid_size=10, latent_range=(-2, 2))

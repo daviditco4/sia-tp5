@@ -6,26 +6,55 @@ from MultilayerPerceptronOfAdam import MultilayerPerceptronOfAdam
 
 
 class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAdam):
-    def __init__(self, encoder_layers, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
-        MLPLinearAutoencoder.__init__(self, encoder_layers, learning_rate=learning_rate)
+    def __init__(self, encoder_layers, beta=1.0, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
+        """
+        Initialize a linear autoencoder with Adam optimization.
+        Parameters:
+        - encoder_layers: List of integers defining the encoder architecture, e.g., [input_size, hidden1, latent_size].
+        - learning_rate: Learning rate for Adam optimization.
+        - beta1: Exponential decay rate for the first moment estimates (Adam parameter).
+        - beta2: Exponential decay rate for the second moment estimates (Adam parameter).
+        - epsilon: Small constant to prevent division by zero (Adam parameter).
+        """
+        # Call the parent constructors
+        MLPLinearAutoencoder.__init__(self, encoder_layers, beta, learning_rate)
         MultilayerPerceptronOfAdam.__init__(
             self,
-            layer_sizes=encoder_layers + encoder_layers[-2::-1],
-            learning_rate=learning_rate,
-            beta1=beta1,
-            beta2=beta2,
-            epsilon=epsilon,
+            encoder_layers + encoder_layers[-2::-1],  # Full autoencoder architecture
+            beta,
+            learning_rate,
+            beta1,
+            beta2,
+            epsilon,
         )
 
-    def calculate_weight_updates(self, weight_gradients):
-        return MultilayerPerceptronOfAdam.calculate_weight_updates(self, weight_gradients)
+    def calculate_weight_updates(self, weight_gradients, bias_gradients, learning_rate=None):
+        """
+        Override the weight and bias update calculation to use Adam optimization.
+        """
+        return MultilayerPerceptronOfAdam.calculate_weight_updates(self, weight_gradients, bias_gradients,
+                                                                   learning_rate)
 
     def initialize_weights(self):
-        MLPLinearAutoencoder.initialize_weights(self)
-        MultilayerPerceptronOfAdam.initialize_weights(self)
+        """
+        Override weight and bias initialization to ensure compatibility with Adam parameters and autoencoder structure.
+        """
+        MLPLinearAutoencoder.initialize_weights(self)  # Initialize weights
+        MultilayerPerceptronOfAdam.initialize_weights(self)  # Initialize Adam-specific parameters
         for i in range(len(self.layer_sizes) - 1):
-            self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
-                2 / (self.layer_sizes[i] + self.layer_sizes[i + 1]))
+            if i == len(self.encoder_layers) - 2:
+                # He initialization for the latent layer
+                self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
+                    2 / (self.layer_sizes[i]))
+            elif i == len(self.layer_sizes) - 2:
+                # Xavier initialization for the output layer
+                self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
+                    2 / (self.layer_sizes[i] + self.layer_sizes[i + 1]))
+            else:
+                # He initialization for the remaining layers
+                self.weights[i] = np.random.randn(self.layer_sizes[i], self.layer_sizes[i + 1]) * np.sqrt(
+                    2 / self.layer_sizes[i])
+            self.biases[i] = np.zeros((1, self.layer_sizes[i + 1]))
 
 """
     def train_autoencoder(self, x, epoch_limit, error_limit):
