@@ -13,7 +13,7 @@ from assets.fonts import font3
 def binary_arrays_from_font3():
     # Assuming `font3` is defined elsewhere and is a list of 7x5 matrices
     num_chars = len(font3)
-    binary_arrays = np.zeros((num_chars, 35), dtype=int)  # Preallocate with zeros
+    binary_arrays = np.zeros((num_chars, 35), dtype=float)  # Preallocate with zeros
     for i, character in enumerate(font3):
         for row in range(7):
             processing_row = character[row]
