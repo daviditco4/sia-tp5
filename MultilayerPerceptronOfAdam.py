@@ -30,8 +30,8 @@ class MultilayerPerceptronOfAdam(MultilayerPerceptron):
         if learning_rate is None:
             learning_rate = self.learning_rate
         self.t += 1
-        weight_updates = [None] * len(self.weights)
-        bias_updates = [None] * len(self.biases)
+        weight_updates = [0.0] * len(self.weights)
+        bias_updates = [0.0] * len(self.biases)
         for i in range(len(self.weights)):
             # Update biased first moment estimate (m) and second moment estimate (v) for weights
             self.m_weights[i] = self.beta1 * self.m_weights[i] + (1 - self.beta1) * weight_gradients[i]

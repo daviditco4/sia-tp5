@@ -41,7 +41,7 @@ class MultilayerPerceptron:
         if biases is None:
             biases = self.biases
         activations = [x] * (len(weights) + 1)  # Store activations for each layer
-        excitations = [None] * len(weights)  # Store weighted sums for each layer (before activation)
+        excitations = [0.0] * len(weights)  # Store weighted sums for each layer (before activation)
         for i in range(len(weights)):
             net_input = np.dot(activations[i], weights[i]) + biases[i]  # Weighted sum + bias (excitation)
             excitations[i] = net_input
@@ -52,8 +52,8 @@ class MultilayerPerceptron:
     def calculate_weight_updates(self, weight_gradients, bias_gradients, learning_rate=None):
         if learning_rate is None:
             learning_rate = self.learning_rate
-        weight_updates = [None] * len(self.weights)
-        bias_updates = [None] * len(self.biases)
+        weight_updates = [0.0] * len(self.weights)
+        bias_updates = [0.0] * len(self.biases)
         for i in range(len(self.weights)):
             weight_updates[i] = -learning_rate * (weight_gradients[i] + 0.001 * self.weights[i]) + self.momentum * \
                                 self.prev_weight_updates[i]
@@ -64,9 +64,9 @@ class MultilayerPerceptron:
 
     # Backpropagation for multiple layers
     def back_propagation(self, y_true, activations, excitations):
-        errors = [None] * len(self.weights)  # Initialize error list
-        weight_gradients = [None] * len(self.weights)
-        bias_gradients = [None] * len(self.biases)
+        errors = [0.0] * len(self.weights)  # Initialize error list
+        weight_gradients = [0.0] * len(self.weights)
+        bias_gradients = [0.0] * len(self.biases)
         # Error at the output layer (last layer)
         output_error = (y_true - activations[-1]) * self.sigmoid_derivative(excitations[-1], len(self.layer_sizes) - 1)
         errors[-1] = output_error
@@ -119,7 +119,7 @@ class MultilayerPerceptron:
                     error = self.compute_error(x, y)
                     # Update the minimum error and best weights if the current error is lower or equal
                     if error <= min_error:
-                        print(np.sum(np.abs(np.rint(self.forward_propagation(x)[0][-1]) - x)), error)
+                        # print(np.sum(np.abs(np.rint(self.forward_propagation(x)[0][-1]) - x)), error)
                         min_error = error
                         best_weights = [w.copy() for w in self.weights]  # Store the best weights
                         best_biases = [w.copy() for w in self.biases]  # Store the best biases

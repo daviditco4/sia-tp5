@@ -3,7 +3,7 @@ import sys
 
 import numpy as np
 
-# Add the path to the folder containing font3.py (with nesting)
+# Add the path to the folder containing assets/fonts.py
 sys.path.append(os.path.abspath('.'))
 
 # Now you can import font3
