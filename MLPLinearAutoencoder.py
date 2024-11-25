@@ -25,24 +25,26 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
 
     # Override the activation function to be linear for reconstruction
     def sigmoid(self, x, layer_index=None):
-        if self.is_just_decoding:
-            layer_index += len(self.encoder_layers) - 1
-        if layer_index == len(self.encoder_layers) - 1:
-            return x  # Linear activation for the latent layer
-        elif layer_index == len(self.layer_sizes) - 1:
-            return MultilayerPerceptron.sigmoid(self, x)  # Sigmoid activation for the output layer
-        else:
-            return np.tanh(self.beta * x)  # Tanh activation for the remaining layers
+        return MultilayerPerceptron.sigmoid(self, x)
+        # if self.is_just_decoding:
+        #     layer_index += len(self.encoder_layers) - 1
+        # if layer_index == len(self.encoder_layers) - 1:
+        #     return x  # Linear activation for the latent layer
+        # elif layer_index == len(self.layer_sizes) - 1:
+        #     return MultilayerPerceptron.sigmoid(self, x)  # Sigmoid activation for the output layer
+        # else:
+        #     return np.tanh(self.beta * x)  # Tanh activation for the remaining layers
 
     def sigmoid_derivative(self, x, layer_index=None):
-        if self.is_just_decoding:
-            layer_index += len(self.encoder_layers) - 1
-        if layer_index == len(self.encoder_layers) - 1:
-            return np.ones_like(x)  # For linear activation, the derivative is constant (1)
-        elif layer_index == len(self.layer_sizes) - 1:
-            return MultilayerPerceptron.sigmoid_derivative(self, x)
-        else:
-            return self.beta * (1 - np.tanh(self.beta * x) ** 2)  # Derivative for tanh activation
+        return MultilayerPerceptron.sigmoid_derivative(self, x)
+        # if self.is_just_decoding:
+        #     layer_index += len(self.encoder_layers) - 1
+        # if layer_index == len(self.encoder_layers) - 1:
+        #     return np.ones_like(x)  # For linear activation, the derivative is constant (1)
+        # elif layer_index == len(self.layer_sizes) - 1:
+        #     return MultilayerPerceptron.sigmoid_derivative(self, x)
+        # else:
+        #     return self.beta * (1 - np.tanh(self.beta * x) ** 2)  # Derivative for tanh activation
 
     # def compute_error(self, x, _=None):
     #     reconstructions = self.reconstruct(x)
@@ -112,7 +114,46 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
         plt.xlabel("Latent Dimension 1")
         plt.ylabel("Latent Dimension 2")
         plt.grid(True)
-        plt.show()
+        plt.savefig(
+            f"task1_linear_activation_latent_space.png",
+            # {varying_hyperparam.lower().replace(" ", "_")}_determined_latent_space.png",
+            dpi=300, bbox_inches='tight')
+        plt.close()
+
+    def plot_reconstructions(self, original_bitmaps):
+        """
+        Plot the original and reconstructed bitmaps in a grid.
+        Parameters:
+        - original_bitmaps: numpy array of shape (32, 35) where each row is a flattened 7x5 bitmap.
+        """
+        if original_bitmaps.shape[0] != 32 or original_bitmaps.shape[1] != 35:
+            raise ValueError("Input must have shape (32, 35), representing 32 flattened 7x5 bitmaps.")
+
+        # Reconstruct the bitmaps
+        reconstructed_bitmaps = np.clip(self.reconstruct(original_bitmaps), a_min=0, a_max=1)
+
+        # Prepare the figure
+        fig, axes = plt.subplots(8, 8, figsize=(10, 10))  # 8x8 grid for 32 original + 32 reconstructed
+        axes = axes.flatten()
+
+        for i in range(32):
+            # Plot original
+            axes[i * 2].imshow(original_bitmaps[i].reshape(7, 5), cmap='gray', interpolation='nearest')
+            axes[i * 2].axis('off')
+            axes[i * 2].set_title("Original")
+
+            # Plot reconstruction
+            axes[i * 2 + 1].imshow(reconstructed_bitmaps[i].reshape(7, 5), cmap='gray', interpolation='nearest')
+            axes[i * 2 + 1].axis('off')
+            axes[i * 2 + 1].set_title("Reconstructed")
+
+        # Adjust spacing and save the plot
+        plt.tight_layout()
+        plt.savefig(
+            f"task1_linear_activation_reconstructions.png",
+            # {varying_hyperparam.lower().replace(" ", "_")}_determined_reconstructions.png",
+            dpi=300, bbox_inches='tight')
+        plt.close()
 
 
 # Example usage

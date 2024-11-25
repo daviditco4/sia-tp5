@@ -8,7 +8,7 @@ sys.path.append(os.path.abspath('.'))
 
 # Now you can import MLPLinearAutoencoderOfAdam
 from MLPLinearAutoencoderOfAdam import MLPLinearAutoencoderOfAdam
-from assets.fonts import font3_labels
+# from assets.fonts import font3_labels
 from utils.character_font import binary_arrays_from_font3
 
 # Example solution
@@ -22,7 +22,7 @@ if __name__ == '__main__':
 
     # Train the autoencoder
     trained_weights, trained_biases, min_error, epochs, _, _, _ = autoencoder.train_autoencoder(characters,
-                                                                                                epoch_limit=np.inf,
+                                                                                                epoch_limit=2000,
                                                                                                 error_limit=0.002)
     print("Trained weights:", trained_weights)
     print("Trained biases:", trained_biases)
@@ -35,9 +35,12 @@ if __name__ == '__main__':
     print("Latent representation:", latent_representation)
     print("Reconstruction:", np.resize(np.rint(reconstruction[31]), new_shape=(7, 5)))
 
-    # Plot the latent space
-    autoencoder.plot_latent_space(characters, font3_labels)
-    # labels = [None] * len(characters)
-    # for i in range(len(characters)):
-    #     labels[i] = font3_labels[i] + str(autoencoder.compute_error(characters[i]))
-    # autoencoder.plot_latent_space(characters, labels)
+    # # Plot the latent space
+    # autoencoder.plot_latent_space(characters, font3_labels)
+    # # labels = [None] * len(characters)
+    # # for i in range(len(characters)):
+    # #     labels[i] = font3_labels[i] + str(autoencoder.compute_error(characters[i]))
+    # # autoencoder.plot_latent_space(characters, labels)
+
+    # Plot the reconstructions
+    autoencoder.plot_reconstructions(characters)

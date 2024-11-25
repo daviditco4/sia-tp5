@@ -30,7 +30,7 @@ def train_autoencoder(inputs, labels, hyperparameters):
                                   momentum=hyperparameters["momentum"] if 'momentum' in hyperparameters else 0.0)
 
     # Train the autoencoder
-    _, _, _, epochs, weight_history, bias_history, error_history = ae.train(inputs, labels, epoch_limit=100,
+    _, _, _, epochs, weight_history, bias_history, error_history = ae.train(inputs, labels, epoch_limit=2000,
                                                                             error_limit=hyperparameters["error_limit"])
 
     return ae, epochs, weight_history, bias_history, error_history
