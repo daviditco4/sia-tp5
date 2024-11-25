@@ -20,20 +20,42 @@ if __name__ == '__main__':
     # Create a deep autoencoder with a mirrored architecture
     autoencoder = MLPLinearAutoencoderOfAdam(encoder_layers=[35, 50, 70, 30, 12, 5, 2], learning_rate=0.0001)
 
-    # Train the autoencoder
-    trained_weights, trained_biases, min_error, epochs, _, _, _ = autoencoder.train_autoencoder(characters,
-                                                                                                epoch_limit=np.inf,
-                                                                                                error_limit=0.002)
+    # Run the training process 10 times and collect the error histories
+    num_runs = 10
+    all_error_histories = []
+    max_epochs = 0
+    for _ in range(num_runs):
+        trained_weights, trained_biases, min_error, epochs, _, _, error_history = autoencoder.train_autoencoder(
+            characters,
+            epoch_limit=np.inf,
+            error_limit=0.05)
+        all_error_histories.append(error_history)
+        max_epochs = max(max_epochs, epochs)
+
+    # Calculate the average error and standard deviation for each epoch
+    avg_errors = np.zeros(max_epochs)
+    std_devs = np.zeros(max_epochs)
+    for epoch in range(max_epochs):
+        errors_at_epoch = [history[epoch] for history in all_error_histories if epoch < len(history)]
+        avg_errors[epoch] = np.mean(errors_at_epoch)
+        std_devs[epoch] = np.std(errors_at_epoch)
+
     print("Trained weights:", trained_weights)
     print("Trained biases:", trained_biases)
     print("Minimum error:", np.sum(np.abs(np.rint(autoencoder.reconstruct(characters)) - characters)))
     print("Epochs used:", epochs)
 
-    # Plot error history
-    plt.plot(error_history)
+    # Plot the average error with error bars representing the standard deviation
+
+    # Plot the averages and standard deviation
+    #plt.plot(columns, avg_0_1, marker='o', color='skyblue', label='Learning Rate 0.1', linestyle='-')
+    #plt.errorbar(columns, avg_0_1, yerr=std_0_1, fmt='o', color='skyblue', capsize=5)
+
+    plt.plot(range(max_epochs), avg_errors, marker='o', color='orange', label='Learning Rate 0.0001', linestyle='-')
+    plt.errorbar(range(max_epochs), avg_errors, yerr=std_devs, fmt='o', color='skyblue', capsize=5)
     plt.xlabel('Epochs')
-    plt.ylabel('Error')
-    plt.title('Error History')
+    plt.ylabel('Average Error')
+    plt.title('Average Error over Multiple Runs')
     plt.grid(True)
     plt.show()
 
