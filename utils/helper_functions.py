@@ -30,15 +30,14 @@ def train_autoencoder(inputs, labels, hyperparameters):
                                   momentum=hyperparameters["momentum"] if 'momentum' in hyperparameters else 0.0)
 
     # Train the autoencoder
-    _, _, min_error, epochs, weight_history, bias_history, error_history = ae.train(inputs, labels,
-                                                                                        epoch_limit=4000,
-                                                                                        error_limit=hyperparameters[
-                                                                                            "error_limit"])
+    _, _, _, epochs, weight_history, bias_history, error_history = ae.train(inputs, labels, epoch_limit=2000,
+                                                                            error_limit=hyperparameters["error_limit"])
 
     return ae, epochs, weight_history, bias_history, error_history
 
 
-def append_results_to_csv(file_path, elapsed_time, hyperparameters, noise_level, epochs, training_errors, testing_errors):
+def append_results_to_csv(file_path, elapsed_time, hyperparameters, noise_level, epochs, training_errors,
+                          testing_errors):
     file_exists = os.path.isfile(file_path)
     with open(file_path, 'a', newline='') as csvfile:
         csvwriter = csv.writer(csvfile)

@@ -20,4 +20,8 @@ def binary_arrays_from_font3():
             for col in range(5):
                 binary_arrays[i, row * 5 + (4 - col)] = processing_row & 1
                 processing_row >>= 1
+    # mean = binary_arrays.mean()
+    # std = binary_arrays.std()
+    # normalized_bitmap = (binary_arrays - mean) / std
+    # return normalized_bitmap
     return binary_arrays

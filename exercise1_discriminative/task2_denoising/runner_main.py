@@ -1,5 +1,5 @@
 import os
-import random
+# import random
 import sys
 import time
 
@@ -14,21 +14,26 @@ from utils.helper_functions import read_hyperparameters_from_json, train_autoenc
 
 
 def apply_noise_to_bitmaps(bitmaps, noise_lvl):
-    """
-    Applies noise to the bitmaps by flipping a fraction of the bits.
-    noise_level: The fraction of bits to flip (between 0 and 1).
-    """
-    noisy_bitmaps = bitmaps.copy()
-    num_bits = noisy_bitmaps.shape[1]  # Number of bits in each bitmap (should be 35 for 5x7)
-    num_characters = noisy_bitmaps.shape[0]  # Number of characters
-    num_bits_to_flip = int(num_bits * noise_lvl)  # How many bits to flip based on noise level
-
-    for digit_index in range(num_characters):
-        # Randomly select which bits to flip
-        flip_indices = random.sample(range(num_bits), num_bits_to_flip)
-        for bit_index in flip_indices:
-            # Flip the bit (0 -> 1, 1 -> 0)
-            noisy_bitmaps[digit_index, bit_index] = 1 - noisy_bitmaps[digit_index, bit_index]
+    # Add Gaussian noise
+    mean = 0
+    std_dev = noise_lvl
+    noise = np.random.normal(mean, std_dev, bitmaps.shape)
+    noisy_bitmaps = np.clip(bitmaps + noise, a_min=0, a_max=1)
+    # """
+    # Applies noise to the bitmaps by flipping a fraction of the bits.
+    # noise_level: The fraction of bits to flip (between 0 and 1).
+    # """
+    # noisy_bitmaps = bitmaps.copy()
+    # num_bits = noisy_bitmaps.shape[1]  # Number of bits in each bitmap (should be 35 for 5x7)
+    # num_characters = noisy_bitmaps.shape[0]  # Number of characters
+    # num_bits_to_flip = int(num_bits * noise_lvl)  # How many bits to flip based on noise level
+    #
+    # for digit_index in range(num_characters):
+    #     # Randomly select which bits to flip
+    #     flip_indices = random.sample(range(num_bits), num_bits_to_flip)
+    #     for bit_index in flip_indices:
+    #         # Flip the bit (0 -> 1, 1 -> 0)
+    #         noisy_bitmaps[digit_index, bit_index] = 1 - noisy_bitmaps[digit_index, bit_index]
 
     return noisy_bitmaps
 
@@ -69,8 +74,11 @@ if __name__ == "__main__":
     hyperparameters = read_hyperparameters_from_json(hyperparameters_json_file)
 
     # Use same characters as `true` labels
-    labels = characters
-    inputs = characters if noise_level == 0.0 else apply_noise_to_bitmaps(characters, noise_level)
+    labels = characters if noise_level == 0.0 else np.tile(characters, reps=(5, 1))
+
+    # Use noisy characters if it is denoising
+    inputs = characters if noise_level == 0.0 else np.concatenate(
+        [apply_noise_to_bitmaps(characters, noise_level) for _ in range(5)])
 
     for _ in range(1):
         # Start timing
@@ -80,10 +88,15 @@ if __name__ == "__main__":
         # Calculate elapsed time
         elapsed_time = time.time() - start_time
 
-        testing_errors = test_autoencoder(ae, labels, weight_history, bias_history,
+        testing_errors = test_autoencoder(ae, characters, weight_history, bias_history,
                                           noise_level) if noise_level != 0.0 else None
 
         # Append results to CSV
         append_results_to_csv(output_csv_file, elapsed_time, hyperparameters, noise_level, epochs, error_history,
                               testing_errors)
+        # print(weight_history[0][:2][:2])
+        # print(weight_history[1][:2][:2])
+        # print(bias_history[0][:2][:2])
+        # print(bias_history[1][:2][:2])
         print(f"Training completed in {epochs} epochs with {error_history[-1]:.4f} training error")
+        print(np.mean((ae.predict(apply_noise_to_bitmaps(characters, noise_level), weight_history[0], bias_history[0]) - characters) ** 2))
