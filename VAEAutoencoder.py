@@ -1,4 +1,4 @@
-import random
+Vimport random
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.spatial.distance import euclidean
