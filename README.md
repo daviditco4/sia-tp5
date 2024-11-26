@@ -18,7 +18,7 @@ python3 exercise1_discriminative/task2_reconstructing/runner_main.py <config.jso
 
 The configuration for the algorithm's options is a JSON file with the following structure:
 
-* `"layer_sizes"`: The layer architecture
+* `"endoder_layers"`: The encoder's layer architecture
 * `"beta"`: The multiplication factor of the sigmoid activation
 * `"learning_rate"`: The multilayer perceptron's learning factor
 * `"momentum"`: The momentum factor (0 by default)
