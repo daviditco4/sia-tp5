@@ -7,7 +7,7 @@ import matplotlib.pyplot as plt
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print(
-            "Usage: python parameter_determined_mean_squared_error_vs_epoch_plotting.py <data_csv_file> <varying_hyperparameter_name>")
+            "Usage: python training_error_vs_epoch.py <data_csv_file> <varying_hyperparameter_name>")
         sys.exit(1)
 
     # Read the CSV file
@@ -49,8 +49,8 @@ if __name__ == "__main__":
         plt.plot(epochs, mse_means, label=f'{varying_hyperparam}: {val}')
         plt.fill_between(epochs, mse_means - mse_stds, mse_means + mse_stds, alpha=0.2)
 
-    # Limit X-axis to 2500 epochs
-    plt.xlim([1, 2500])
+    # # Limit X-axis to 2500 epochs
+    # plt.xlim([1, 2500])
 
     # # Set y-axis to logarithmic scale
     # plt.yscale('log')
@@ -64,6 +64,6 @@ if __name__ == "__main__":
 
     # Save the plot
     plt.savefig(
-        f"task1_{varying_hyperparam.lower().replace(' ', '_')}_determined_training_error_vs_epoch_plot.png",
+        f"task1_{varying_hyperparam.lower().replace('/', '_')}_determined_training_error_vs_epoch_plot.png",
         dpi=300, bbox_inches='tight')
     plt.close()

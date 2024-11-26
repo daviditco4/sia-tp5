@@ -3,25 +3,20 @@ import subprocess
 # Define the command template and the arguments
 command_template = 'python3'
 arguments = [
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/noise0-1.csv 0.1 2',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/optimizer.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/learning_rate_-00005.json outputs/noisy/learning_rate.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/learning_rate_-0002.json outputs/noisy/learning_rate.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/learning_rate_-0005.json outputs/noisy/learning_rate.csv 0.1 4',
 
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/largest_layer_35.json outputs/largest_layer.csv',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/largest_layer_50.json outputs/largest_layer.csv',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/largest_layer_100.json outputs/largest_layer.csv',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/largest_layer_35.json outputs/noisy/largest_layer.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/largest_layer_50.json outputs/noisy/largest_layer.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/largest_layer_100.json outputs/noisy/largest_layer.csv 0.1 4',
 
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/momentum_-8.json outputs/optimizer.csv',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/momentum_-95.json outputs/optimizer.csv',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/optimizer_none.json outputs/optimizer.csv',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/optimizer_none_momentum_-8.json outputs/optimizer.csv',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/optimizer_none_momentum_-95.json outputs/optimizer.csv',
-
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/noise0-3.csv 0.3',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/noise0-3.csv 0.3 2',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/noise0-3.csv 0.3 4',
-
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/noise0-5.csv 0.5',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/noise0-5.csv 0.5 2',
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/noise0-5.csv 0.5 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/momentum_-8.json outputs/noisy/optimizer.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/momentum_-95.json outputs/noisy/optimizer.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/optimizer_none.json outputs/noisy/optimizer.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/optimizer_none_momentum_-8.json outputs/noisy/optimizer.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/optimizer_none_momentum_-95.json outputs/noisy/optimizer.csv 0.1 4',
 ]
 
 # Number of repetitions

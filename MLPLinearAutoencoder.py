@@ -19,7 +19,7 @@ class MLPLinearAutoencoder(MultilayerPerceptron):
         # Mirror the encoder layers to form the full autoencoder architecture
         decoder_layers = encoder_layers[-2::-1]  # Reverse encoder layers, excluding the last one (latent)
         layer_sizes = encoder_layers + decoder_layers  # Full architecture: encoder + mirrored decoder
-        MultilayerPerceptron.__init__(self, layer_sizes, beta, learning_rate, momentum, training_level)
+        MultilayerPerceptron.__init__(self, layer_sizes, beta, learning_rate, momentum, training_level=training_level)
         self.encoder_layers = encoder_layers
         self.is_just_decoding = False
 

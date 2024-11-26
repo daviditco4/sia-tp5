@@ -16,7 +16,7 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
         - epsilon: Small constant to prevent division by zero (Adam parameter).
         """
         # Call the parent constructors
-        MLPLinearAutoencoder.__init__(self, encoder_layers, beta, learning_rate, training_level)
+        MLPLinearAutoencoder.__init__(self, encoder_layers, beta, learning_rate, training_level=training_level)
         MultilayerPerceptronOfAdam.__init__(
             self,
             encoder_layers + encoder_layers[-2::-1],  # Full autoencoder architecture
@@ -25,7 +25,7 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
             beta1,
             beta2,
             epsilon,
-            training_level
+            training_level=training_level
         )
 
     def calculate_weight_updates(self, weight_gradients, bias_gradients, learning_rate=None):

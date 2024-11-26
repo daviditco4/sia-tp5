@@ -136,7 +136,7 @@ class MultilayerPerceptron:
                 bias_updates = [np.zeros_like(w) for w in self.biases]
             epoch += 1
             error = self.compute_error(x, y)
-            if epoch % self.training_level == 0:
+            if epoch % (4 / self.training_level) == 0:
                 weight_history.append([np.copy(w) for w in self.weights])
                 bias_history.append([np.copy(b) for b in self.biases])
                 error_history.append(error)

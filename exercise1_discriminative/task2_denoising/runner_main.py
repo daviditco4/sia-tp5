@@ -66,7 +66,7 @@ if __name__ == "__main__":
     hyperparameters_json_file = sys.argv[1]
     output_csv_file = sys.argv[2]
     noise_level = float(sys.argv[3]) if len(sys.argv) > 3 else 0.0
-    training_level = int(sys.argv[3]) if len(sys.argv) > 4 else 1
+    training_level = int(sys.argv[4]) if len(sys.argv) > 4 else 1
 
     # Read the characters from our font
     characters = binary_arrays_from_font3()
