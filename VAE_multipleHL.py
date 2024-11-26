@@ -508,12 +508,25 @@ plt.gca().set_aspect("equal")  # Asegurar que las celdas sean cuadradas
 plt.show()
 '''
 
-zed = vae.encode(new_input)
+#zed = vae.encode(new_input)
 
-print(zed)
+#print(zed)
 
-vae.plot_latent_space(new_input, ["feliz", "triste", "sorprendida", "corazon", "estrella", "pulgar arriba"])
+#vae.plot_latent_space(new_input, ["feliz", "triste", "sorprendida", "corazon", "estrella", "pulgar arriba"])
 
-vae.plot_latent_grid()
+
+index = 3
+emoji_example = new_input[index]
+reconstructed_emoji = vae.example(emoji_example)
+reconstructed_matrix = np.array(reconstructed_emoji).reshape(7,7)
+
+plt.figure(figsize=(3, 3))  # Ajusta el tamaño para que se vea bien como cuadrícula
+plt.imshow(reconstructed_matrix, cmap="Greys", interpolation="nearest")
+plt.axis("off")
+plt.title(f"Emoji {index + 1}")
+plt.gca().set_aspect("equal")  # Asegurar que las celdas sean cuadradas
+plt.show()
+
+#vae.plot_latent_grid()
 
 
