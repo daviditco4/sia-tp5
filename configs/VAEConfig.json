@@ -1,0 +1,39 @@
+{
+  "input": "data/fonts2.txt",
+  "encoder_pickle_input": false,
+  "decoder_pickle_input": false,
+  "encoder_pickle_output": "vae_encoder",
+  "decoder_pickle_output": "vae_decoder",
+  "names_description": "5k_sigmoid_new_arch_gd_fonts2",
+  "train": true,
+  "input_length": 49,
+  "encoder_hidden": [30, 20, 10],
+  "decoder_hidden": [30, 10, 20],
+  "activation": "SIGMOID",
+  "beta": 0.7,
+  "n": 0.01,
+  "optimizer": "ADAM",
+  "optimizer_config": {
+    "adaptive_eta_iterations_increment": 20,
+    "adaptive_eta_iterations_decrement": -20,
+    "adaptive_eta_increment": 0.005,
+    "adaptive_eta_decrement": 0.2,
+    "adam_alpha": 0.001,
+    "adam_beta1": 0.9,
+    "adam_beta2": 0.999,
+    "adam_epsilon": 1e-8,
+    "momentum_beta": 0.05,
+    "momentum_alpha": 0.9
+  },
+  "error": "NORM2",
+  "condition": "PIXEL_ERROR",
+  "condition_config": {
+    "epsilon": 0,
+    "min_pixel_error": 1
+  },
+  "limit": 2000,
+  "batch": 32,
+  "test_pct": 0.8,
+  "noise_stddev": 0.000001,
+  "data_augmentation": false
+}
