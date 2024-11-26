@@ -5,7 +5,7 @@ from MultilayerPerceptronOfAdam import MultilayerPerceptronOfAdam
 
 
 class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAdam):
-    def __init__(self, encoder_layers, beta=1.0, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8):
+    def __init__(self, encoder_layers, beta=1.0, learning_rate=0.001, beta1=0.9, beta2=0.999, epsilon=1e-8, training_level=1):
         """
         Initialize a linear autoencoder with Adam optimization.
         Parameters:
@@ -16,7 +16,7 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
         - epsilon: Small constant to prevent division by zero (Adam parameter).
         """
         # Call the parent constructors
-        MLPLinearAutoencoder.__init__(self, encoder_layers, beta, learning_rate)
+        MLPLinearAutoencoder.__init__(self, encoder_layers, beta, learning_rate, training_level)
         MultilayerPerceptronOfAdam.__init__(
             self,
             encoder_layers + encoder_layers[-2::-1],  # Full autoencoder architecture
@@ -25,6 +25,7 @@ class MLPLinearAutoencoderOfAdam(MLPLinearAutoencoder, MultilayerPerceptronOfAda
             beta1,
             beta2,
             epsilon,
+            training_level
         )
 
     def calculate_weight_updates(self, weight_gradients, bias_gradients, learning_rate=None):

@@ -3,7 +3,7 @@ import numpy as np
 
 
 class MultilayerPerceptron:
-    def __init__(self, layer_sizes, beta=1.0, learning_rate=0.001, momentum=0.0, weight_updates_by_epoch=False):
+    def __init__(self, layer_sizes, beta=1.0, learning_rate=0.001, momentum=0.0, weight_updates_by_epoch=False, training_level=1):
         self.layer_sizes = layer_sizes  # List defining the number of neurons per layer
         self.beta = beta
         self.learning_rate = learning_rate
@@ -13,6 +13,7 @@ class MultilayerPerceptron:
         self.biases = None
         self.prev_weight_updates = None
         self.prev_bias_updates = None
+        self.training_level = training_level
 
     # Sigmoid activation function
     def sigmoid(self, x, _=None):
@@ -135,9 +136,10 @@ class MultilayerPerceptron:
                 bias_updates = [np.zeros_like(w) for w in self.biases]
             epoch += 1
             error = self.compute_error(x, y)
-            weight_history.append(self.weights)
-            bias_history.append(self.biases)
-            error_history.append(error)
+            if epoch % self.training_level == 0:
+                weight_history.append([np.copy(w) for w in self.weights])
+                bias_history.append([np.copy(b) for b in self.biases])
+                error_history.append(error)
             if self.weight_updates_by_epoch:
                 # Update the minimum error, and best weights and biases if the current error is lower or equal
                 if error <= min_error:

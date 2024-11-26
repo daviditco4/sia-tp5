@@ -17,21 +17,23 @@ def read_hyperparameters_from_json(file_path):
     return hyperparameters
 
 
-def train_autoencoder(inputs, labels, hyperparameters):
+def train_autoencoder(inputs, labels, hyperparameters, training_level):
     if 'adam' in hyperparameters["optimizer"]:
         # Initialize autoencoder using the hyperparameters
         ae = MLPLinearAutoencoderOfAdam(hyperparameters["encoder_layers"], beta=hyperparameters["beta"],
                                         learning_rate=hyperparameters["learning_rate"],
-                                        beta1=hyperparameters["momentum"] if 'momentum' in hyperparameters else 0.9)
+                                        beta1=hyperparameters["momentum"] if 'momentum' in hyperparameters else 0.9,
+                                        training_level=1 if training_level is None else training_level)
     else:
         # Initialize autoencoder using the hyperparameters
         ae = MLPLinearAutoencoder(hyperparameters["encoder_layers"], beta=hyperparameters["beta"],
                                   learning_rate=hyperparameters["learning_rate"],
-                                  momentum=hyperparameters["momentum"] if 'momentum' in hyperparameters else 0.0)
+                                  momentum=hyperparameters["momentum"] if 'momentum' in hyperparameters else 0.0,
+                                  training_level=1 if training_level is None else training_level)
 
     # Train the autoencoder
-    _, _, _, epochs, weight_history, bias_history, error_history = ae.train(inputs, labels, epoch_limit=2000,
-                                                                            error_limit=hyperparameters["error_limit"])
+    _, _, _, epochs, weight_history, bias_history, error_history = ae.train(inputs, labels, epoch_limit=2000 if training_level is None else 4000 / training_level,
+                                                                            error_limit=0.002)  # hyperparameters["error_limit"])
 
     return ae, epochs, weight_history, bias_history, error_history
 

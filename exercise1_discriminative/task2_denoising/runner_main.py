@@ -51,21 +51,22 @@ def test_autoencoder(a, chars, w8_hist, bias_hist, noise_lvl=0.0):
 
     for i in range(len(w8_hist)):
         test_error = 0.0
-        for _ in range(4):
+        for _ in range(10):
             test_error += _test_autoencoder(a, chars, noise_lvl, w8_hist[i], bias_hist[i])
-        test_errs[i] = test_error / 4
+        test_errs[i] = test_error / 10
 
     return test_errs
 
 
 if __name__ == "__main__":
-    if len(sys.argv) < 3 or len(sys.argv) > 4:
-        print("Usage: python runner_main.py <hyperparameters_json_file> <output_csv_file> [<noise_level>]")
+    if len(sys.argv) < 3 or len(sys.argv) > 5:
+        print("Usage: python runner_main.py <hyperparameters_json_file> <output_csv_file> [<noise_level> [<training_level>]]")
         sys.exit(1)
 
     hyperparameters_json_file = sys.argv[1]
     output_csv_file = sys.argv[2]
     noise_level = float(sys.argv[3]) if len(sys.argv) > 3 else 0.0
+    training_level = int(sys.argv[3]) if len(sys.argv) > 4 else 1
 
     # Read the characters from our font
     characters = binary_arrays_from_font3()
@@ -74,17 +75,17 @@ if __name__ == "__main__":
     hyperparameters = read_hyperparameters_from_json(hyperparameters_json_file)
 
     # Use same characters as `true` labels
-    labels = characters if noise_level == 0.0 else np.tile(characters, reps=(5, 1))
+    labels = characters if noise_level == 0.0 else np.tile(characters, reps=(training_level, 1))
 
     # Use noisy characters if it is denoising
     inputs = characters if noise_level == 0.0 else np.concatenate(
-        [apply_noise_to_bitmaps(characters, noise_level) for _ in range(5)])
+        [apply_noise_to_bitmaps(characters, noise_level) for _ in range(training_level)])
 
-    for _ in range(1):
+    for _ in range(4):
         # Start timing
         start_time = time.time()
         # Train the autoencoder
-        ae, epochs, weight_history, bias_history, error_history = train_autoencoder(inputs, labels, hyperparameters)
+        ae, epochs, weight_history, bias_history, error_history = train_autoencoder(inputs, labels, hyperparameters, None if noise_level == 0.0 else training_level)
         # Calculate elapsed time
         elapsed_time = time.time() - start_time
 
