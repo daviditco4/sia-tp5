@@ -3,7 +3,7 @@ import subprocess
 # Define the command template and the arguments
 command_template = 'python3'
 arguments = [
-    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/optimizer.csv 0.1 4',
+    'exercise1_discriminative/task2_denoising/runner_main.py configs/prototype.json outputs/noisy/prototype.csv 0.1 4',
     'exercise1_discriminative/task2_denoising/runner_main.py configs/learning_rate_-00005.json outputs/noisy/learning_rate.csv 0.1 4',
     'exercise1_discriminative/task2_denoising/runner_main.py configs/learning_rate_-0002.json outputs/noisy/learning_rate.csv 0.1 4',
     'exercise1_discriminative/task2_denoising/runner_main.py configs/learning_rate_-0005.json outputs/noisy/learning_rate.csv 0.1 4',

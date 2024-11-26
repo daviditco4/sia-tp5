@@ -15,7 +15,7 @@ if __name__ == "__main__":
     varying_hyperparam = sys.argv[2]
 
     # Convert the MSE column from string to list of floats
-    data['Training Error'] = data['Training Error'].apply(eval)
+    data['Testing Error'] = data['Testing Error'].apply(eval)
 
     # Group data by the chosen hyperparameter's column
     unique_values = data[varying_hyperparam].unique()
@@ -28,11 +28,11 @@ if __name__ == "__main__":
         subset = data[data[varying_hyperparam] == val]
 
         # Determine the number of epochs based on the longest MSE list
-        max_epochs = max(subset['Training Error'].apply(len))
+        max_epochs = max(subset['Testing Error'].apply(len))
         all_mse = []
 
         # Collect all MSE values for each epoch
-        for mse_list in subset['Training Error']:
+        for mse_list in subset['Testing Error']:
             padded_mse = mse_list + [np.nan] * (max_epochs - len(mse_list))  # Pad with NaN to handle shorter lists
             all_mse.append(padded_mse)
 
@@ -57,13 +57,13 @@ if __name__ == "__main__":
 
     # Add labels, title, and legend
     plt.xlabel('Epochs')
-    plt.ylabel('Training Error')
+    plt.ylabel('Testing Error')
     plt.title(f'MSE per Epoch for varying {varying_hyperparam}')
     plt.legend()
     plt.grid(True)
 
     # Save the plot
     plt.savefig(
-        f"task1_{varying_hyperparam.lower().replace('/', '_')}_determined_training_error_vs_epoch_plot.png",
+        f"task1_{varying_hyperparam.lower().replace('/', '_')}_determined_testing_error_vs_epoch_plot.png",
         dpi=300, bbox_inches='tight')
     plt.close()
